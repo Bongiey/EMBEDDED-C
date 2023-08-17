@@ -1,0 +1,171 @@
+LOGIC BEHIND CODE:
+1.The esp needs to read the potentiometer value. The value read will be in the range of 0-4095 it should be re-mapped to a range of 50 to 500. Use the map function to perform the re-mapping.
+2.The re-mapped value should be used as a delay in order to only turn an LED on for the required amount as specified by the re-mapped value. Start clock-wise if it reaches the end it must start at the beginning again. The re-mapped value is used as a speed increase/decrease between the LED on and off cycle.
+3.The button should be read throughout. If a button press is detected all LEDs must switch off for 500ms and then change the direction, starting with the rightmost LED moving anti-clockwise.  
+4.Remember to declare the pins as input/outputs as part of the Setup.
+
+CODE:
+int value;
+char dir = 'C';
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  Serial.println("Hello, ESP32!");
+  pinMode(4, INPUT);
+  pinMode(34, INPUT);
+  pinMode(22, OUTPUT);
+  pinMode(23, OUTPUT);
+  pinMode(25, OUTPUT);
+  pinMode(26, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(33, OUTPUT);
+  
+}
+void clockwise(){
+  
+  digitalWrite(23, HIGH);
+  delay(value);
+  digitalWrite(23, LOW);
+  digitalWrite(22, HIGH);
+  delay(value);
+  digitalWrite(22, LOW);
+  digitalWrite(33, HIGH);
+  delay(value);
+  digitalWrite(33, LOW);
+  digitalWrite(25, HIGH);
+  delay(value); // this speeds up the simulation
+  digitalWrite(25, LOW);
+  digitalWrite(26, HIGH);
+  delay(value); // this speeds up the simulation
+  digitalWrite(26, LOW);
+  digitalWrite(27, HIGH);
+  delay(value); // this speeds up the simulation
+  digitalWrite(27, LOW);
+
+  
+}
+void anticlockwise(){
+
+  Serial.println('A');
+ digitalWrite(27, HIGH);
+ delay(value);
+ digitalWrite(27, LOW);
+ digitalWrite(26, HIGH);
+ delay(value);
+ digitalWrite(26,LOW);
+ digitalWrite(25,HIGH);
+ delay(value);
+ digitalWrite(25, LOW);
+ digitalWrite(33, HIGH);
+ delay(value);
+ digitalWrite(33, LOW);
+ digitalWrite(22, HIGH);
+ delay(value);
+ digitalWrite(22, LOW);
+ digitalWrite(23, HIGH);
+ delay(value);
+ digitalWrite(23,LOW);
+}
+
+ void loop() {
+  // put your main code here, to run repeatedly:
+  value = analogRead(34);  
+  value = map(value, 0, 4095, 50, 500);       //value range of the potentiometer
+
+  if(dir == 'C'){
+    clockwise();
+
+  }else{
+    
+    anticlockwise();
+  }
+
+  if (digitalRead(4) == HIGH){
+    Serial.println("btn Pressed");
+     delay(500);
+     if (dir =='A'){
+      dir = 'C';
+     }
+     dir = 'A';
+     Serial.println(dir);
+     
+  }
+}
+
+JSON FILE FROM WOKWI SIMULATOR FOR THE ABOVE CODE:
+{
+  "version": 1,
+  "author": "TLALENG KESWA",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": -110.5, "left": 23.8, "attrs": {} },
+    { "type": "wokwi-led", "id": "led1", "top": -186, "left": 243.8, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -38.3,
+      "left": 265.5,
+      "rotate": 270,
+      "attrs": { "color": "green" }
+    },
+    { "type": "wokwi-led", "id": "led2", "top": -186, "left": 272.6, "attrs": { "color": "red" } },
+    { "type": "wokwi-led", "id": "led3", "top": -186, "left": 359, "attrs": { "color": "red" } },
+    { "type": "wokwi-led", "id": "led4", "top": -186, "left": 330.2, "attrs": { "color": "red" } },
+    { "type": "wokwi-led", "id": "led5", "top": -186, "left": 301.4, "attrs": { "color": "red" } },
+    { "type": "wokwi-led", "id": "led6", "top": -186, "left": 387.8, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -120.85,
+      "left": 172.8,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 32.75,
+      "left": 220.8,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": 101.7,
+      "left": 175.32,
+      "rotate": 180,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "r1:2", "led1:C", "green", [ "v0", "h27.6", "v-28.8" ] ],
+    [ "led2:C", "led1:C", "green", [ "v28.8", "h-38" ] ],
+    [ "led2:C", "led5:C", "green", [ "v28.8", "h29.2" ] ],
+    [ "led5:C", "led4:C", "green", [ "v28.8", "h29.2" ] ],
+    [ "led4:C", "led3:C", "green", [ "v28.8", "h29.2" ] ],
+    [ "led3:C", "led6:C", "green", [ "v28.8", "h29.2", "v-28.8" ] ],
+    [ "r2:2", "btn1:1.l", "green", [ "h8.4", "v-19.2" ] ],
+    [ "esp:GND.1", "r1:1", "black", [ "h26.3", "v-150.87" ] ],
+    [ "esp:GND.1", "r2:1", "black", [ "h0" ] ],
+    [ "esp:3V3", "btn1:2.l", "green", [ "h182.1", "v-28.8" ] ],
+    [ "esp:D4", "btn1:1.l", "green", [ "h95.7", "v9.7" ] ],
+    [ "led1:A", "esp:D23", "green", [ "v0" ] ],
+    [ "led2:A", "esp:D22", "green", [ "v0" ] ],
+    [ "pot1:GND", "r1:1", "black", [ "v-48.7", "h-46.1" ] ],
+    [ "pot1:VCC", "btn1:2.l", "red", [ "v-39.1", "h137.1", "v-57.6" ] ],
+    [ "pot1:SIG", "esp:D34", "green", [ "v-19.9", "h-208.9", "v-153.6" ] ],
+    [
+      "esp:D25",
+      "led4:A",
+      "green",
+      [ "h-69.8", "v-138.61", "h291.77", "v59.32", "h102.6", "v-1.07" ]
+    ],
+    [ "esp:D26", "led3:A", "green", [ "h-62.86", "v-130.67", "h277.87", "v41.68", "h1.07" ] ],
+    [ "esp:D27", "led6:A", "green", [ "h-52.17", "v-134.06", "h264.52", "v41.68", "h178.48" ] ],
+    [ "esp:D33", "led5:A", "green", [ "h-35.79", "v-117.12", "h254.82", "v38.22", "h79.13" ] ]
+  ],
+  "dependencies": {}
+}
+
